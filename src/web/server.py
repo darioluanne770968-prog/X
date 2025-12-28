@@ -20,6 +20,14 @@ from ..extensions import (
     Translator,
     AccountRecommender,
 )
+from ..advanced import (
+    AIAssistant,
+    SentimentAnalyzer,
+    AlertSystem,
+    KnowledgeGraph,
+    RSSGenerator,
+    WebhookManager,
+)
 
 # 初始化 FastAPI
 app = FastAPI(title="X Daily Digest", description="每日推特摘要管理界面")
@@ -37,6 +45,14 @@ class AppState:
     exporter: MarkdownExporter = None
     translator: Translator = None
     recommender: AccountRecommender = None
+
+    # 高级功能
+    ai_assistant: AIAssistant = None
+    sentiment: SentimentAnalyzer = None
+    alerts: AlertSystem = None
+    graph: KnowledgeGraph = None
+    rss: RSSGenerator = None
+    webhooks: WebhookManager = None
 
     # 任务状态
     current_task: Optional[str] = None
@@ -56,6 +72,14 @@ async def startup():
     state.exporter = MarkdownExporter()
     state.translator = Translator()
     state.recommender = AccountRecommender(state.twitter)
+
+    # 高级功能
+    state.ai_assistant = AIAssistant()
+    state.sentiment = SentimentAnalyzer()
+    state.alerts = AlertSystem()
+    state.graph = KnowledgeGraph()
+    state.rss = RSSGenerator()
+    state.webhooks = WebhookManager()
 
 
 # =============================================================================
@@ -288,6 +312,215 @@ async def get_status():
         "has_digest": state.last_digest is not None,
         "last_digest_time": state.last_digest_time.isoformat() if state.last_digest_time else None,
     }
+
+
+# =============================================================================
+# 高级功能页面
+# =============================================================================
+
+@app.get("/chat", response_class=HTMLResponse)
+async def chat_page(request: Request):
+    """AI 对话页面"""
+    cached_tweets = state.twitter.load_cached_tweets()
+    state.ai_assistant.set_context(cached_tweets)
+
+    return templates.TemplateResponse("chat.html", {
+        "request": request,
+        "page": "chat",
+        "tweets_count": len(cached_tweets),
+        "history": state.ai_assistant.conversation_history,
+    })
+
+
+@app.post("/api/chat")
+async def chat_api(request: Request, message: str = Form(...)):
+    """AI 对话 API"""
+    response = state.ai_assistant.chat(message)
+
+    cached_tweets = state.twitter.load_cached_tweets()
+
+    return templates.TemplateResponse("chat.html", {
+        "request": request,
+        "page": "chat",
+        "tweets_count": len(cached_tweets),
+        "history": state.ai_assistant.conversation_history,
+    })
+
+
+@app.post("/api/chat/clear")
+async def clear_chat():
+    """清除对话历史"""
+    state.ai_assistant.clear_history()
+    return RedirectResponse(url="/chat", status_code=303)
+
+
+@app.get("/sentiment", response_class=HTMLResponse)
+async def sentiment_page(request: Request):
+    """情绪分析页面"""
+    cached_tweets = state.twitter.load_cached_tweets()
+    market_sentiment = None
+    trend = []
+
+    if cached_tweets:
+        market_sentiment = state.sentiment.analyze_market_sentiment(cached_tweets)
+        trend = state.sentiment.get_sentiment_trend(cached_tweets)
+
+    return templates.TemplateResponse("sentiment.html", {
+        "request": request,
+        "page": "sentiment",
+        "tweets_count": len(cached_tweets),
+        "sentiment": market_sentiment,
+        "trend": trend,
+    })
+
+
+@app.get("/alerts", response_class=HTMLResponse)
+async def alerts_page(request: Request):
+    """提醒规则页面"""
+    rules = state.alerts.get_rules()
+
+    return templates.TemplateResponse("alerts.html", {
+        "request": request,
+        "page": "alerts",
+        "rules": rules,
+    })
+
+
+@app.post("/api/alerts/keyword")
+async def add_keyword_alert(name: str = Form(...), keywords: str = Form(...)):
+    """添加关键词提醒"""
+    keyword_list = [k.strip() for k in keywords.split(",") if k.strip()]
+    if keyword_list:
+        state.alerts.add_keyword_rule(name, keyword_list)
+    return RedirectResponse(url="/alerts", status_code=303)
+
+
+@app.post("/api/alerts/user")
+async def add_user_alert(name: str = Form(...), usernames: str = Form(...)):
+    """添加用户提醒"""
+    user_list = [u.strip().lstrip("@") for u in usernames.split(",") if u.strip()]
+    if user_list:
+        state.alerts.add_user_rule(name, user_list)
+    return RedirectResponse(url="/alerts", status_code=303)
+
+
+@app.post("/api/alerts/engagement")
+async def add_engagement_alert(
+    name: str = Form(...),
+    min_likes: int = Form(100),
+    min_retweets: int = Form(50),
+):
+    """添加互动量提醒"""
+    state.alerts.add_engagement_rule(name, min_likes, min_retweets)
+    return RedirectResponse(url="/alerts", status_code=303)
+
+
+@app.post("/api/alerts/remove/{rule_id}")
+async def remove_alert(rule_id: str):
+    """移除提醒规则"""
+    state.alerts.remove_rule(rule_id)
+    return RedirectResponse(url="/alerts", status_code=303)
+
+
+@app.post("/api/alerts/toggle/{rule_id}")
+async def toggle_alert(rule_id: str):
+    """切换提醒规则状态"""
+    state.alerts.toggle_rule(rule_id)
+    return RedirectResponse(url="/alerts", status_code=303)
+
+
+@app.get("/graph", response_class=HTMLResponse)
+async def graph_page(request: Request):
+    """知识图谱页面"""
+    cached_tweets = state.twitter.load_cached_tweets()
+
+    if cached_tweets:
+        state.graph.build_from_tweets(cached_tweets)
+
+    graph_data = state.graph.to_json()
+    stats = state.graph.get_stats()
+
+    return templates.TemplateResponse("graph.html", {
+        "request": request,
+        "page": "graph",
+        "graph_data": graph_data,
+        "stats": stats,
+    })
+
+
+@app.get("/api/graph/json")
+async def graph_json():
+    """获取图谱 JSON 数据"""
+    return state.graph.to_json()
+
+
+@app.get("/integrations", response_class=HTMLResponse)
+async def integrations_page(request: Request):
+    """集成设置页面（RSS、Webhook）"""
+    webhooks = state.webhooks.get_webhooks()
+    rss_feeds = list(state.rss.feed_dir.glob("*.xml"))
+
+    return templates.TemplateResponse("integrations.html", {
+        "request": request,
+        "page": "integrations",
+        "webhooks": webhooks,
+        "rss_feeds": [f.name for f in rss_feeds],
+    })
+
+
+@app.post("/api/rss/generate")
+async def generate_rss():
+    """生成 RSS Feed"""
+    cached_tweets = state.twitter.load_cached_tweets()
+    if cached_tweets:
+        state.rss.save_feed(cached_tweets)
+    return RedirectResponse(url="/integrations", status_code=303)
+
+
+@app.get("/api/rss/{filename}")
+async def get_rss_feed(filename: str):
+    """获取 RSS Feed"""
+    from fastapi.responses import Response
+
+    filepath = state.rss.feed_dir / filename
+    if not filepath.exists():
+        return Response(content="Feed not found", status_code=404)
+
+    content = filepath.read_text(encoding="utf-8")
+    return Response(content=content, media_type="application/xml")
+
+
+@app.post("/api/webhooks/add")
+async def add_webhook(
+    name: str = Form(...),
+    url: str = Form(...),
+    events: str = Form(...),
+):
+    """添加 Webhook"""
+    event_list = [e.strip() for e in events.split(",") if e.strip()]
+    state.webhooks.add_webhook(name, url, event_list)
+    return RedirectResponse(url="/integrations", status_code=303)
+
+
+@app.post("/api/webhooks/remove/{webhook_id}")
+async def remove_webhook(webhook_id: str):
+    """移除 Webhook"""
+    state.webhooks.remove_webhook(webhook_id)
+    return RedirectResponse(url="/integrations", status_code=303)
+
+
+@app.post("/api/webhooks/toggle/{webhook_id}")
+async def toggle_webhook(webhook_id: str):
+    """切换 Webhook 状态"""
+    state.webhooks.toggle_webhook(webhook_id)
+    return RedirectResponse(url="/integrations", status_code=303)
+
+
+@app.post("/api/webhooks/test/{webhook_id}")
+async def test_webhook(webhook_id: str):
+    """测试 Webhook"""
+    results = await state.webhooks.trigger("test", {"message": "Test from X Daily Digest"})
+    return {"results": results}
 
 
 def run_server(host: str = "127.0.0.1", port: int = 8000):

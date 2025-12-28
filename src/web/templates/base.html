@@ -34,21 +34,30 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-8">
                     <a href="/" class="text-xl font-bold text-x-blue">📰 X Daily Digest</a>
-                    <div class="flex space-x-4">
-                        <a href="/" class="px-3 py-2 rounded-md text-sm font-medium {% if page == 'dashboard' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            仪表盘
+                    <div class="flex space-x-2">
+                        <a href="/" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'dashboard' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            🏠 仪表盘
                         </a>
-                        <a href="/following" class="px-3 py-2 rounded-md text-sm font-medium {% if page == 'following' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            关注管理
+                        <a href="/chat" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'chat' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            🤖 AI助手
                         </a>
-                        <a href="/filter" class="px-3 py-2 rounded-md text-sm font-medium {% if page == 'filter' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            过滤器
+                        <a href="/sentiment" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'sentiment' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            📊 情绪
                         </a>
-                        <a href="/exports" class="px-3 py-2 rounded-md text-sm font-medium {% if page == 'exports' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            导出文件
+                        <a href="/graph" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'graph' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            🕸️ 图谱
                         </a>
-                        <a href="/recommend" class="px-3 py-2 rounded-md text-sm font-medium {% if page == 'recommend' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            账号推荐
+                        <a href="/alerts" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'alerts' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            🔔 提醒
+                        </a>
+                        <a href="/following" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'following' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            👥 关注
+                        </a>
+                        <a href="/filter" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'filter' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            🔇 过滤
+                        </a>
+                        <a href="/integrations" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'integrations' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            🔗 集成
                         </a>
                     </div>
                 </div>

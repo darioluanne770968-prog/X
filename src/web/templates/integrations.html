@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}集成设置 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- RSS -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📡 RSS Feed</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <p class="text-gray-400 mb-4">生成 RSS Feed，使用任何 RSS 阅读器订阅推文更新。</p>
+                <form action="/api/rss/generate" method="POST">
+                    <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded font-medium transition">
+                        🔄 生成 RSS Feed
+                    </button>
+                </form>
+            </div>
+
+            <div>
+                <h3 class="font-medium mb-2">已生成的 Feed</h3>
+                {% if rss_feeds %}
+                <div class="space-y-2">
+                    {% for feed in rss_feeds %}
+                    <div class="bg-gray-900 rounded p-3 flex items-center justify-between">
+                        <span class="text-orange-400">📄 {{ feed }}</span>
+                        <a href="/api/rss/{{ feed }}" target="_blank" class="text-x-blue hover:underline text-sm">
+                            查看 Feed
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-sm">暂无 Feed</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Webhook -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🔗 Webhook</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 添加 Webhook -->
+            <div class="bg-gray-900 rounded-lg p-4">
+                <h3 class="font-medium mb-3">添加 Webhook</h3>
+                <form action="/api/webhooks/add" method="POST" class="space-y-3">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="名称（如: Slack 通知）"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                        required
+                    >
+                    <input
+                        type="url"
+                        name="url"
+                        placeholder="Webhook URL"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                        required
+                    >
+                    <input
+                        type="text"
+                        name="events"
+                        placeholder="事件类型（逗号分隔: digest, alert, new_tweets）"
+                        value="digest,alert"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                    >
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded text-sm transition">
+                        添加 Webhook
+                    </button>
+                </form>
+            </div>
+
+            <!-- Webhook 说明 -->
+            <div class="bg-gray-900 rounded-lg p-4">
+                <h3 class="font-medium mb-3">支持的事件</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-400">digest</span>
+                        <span class="text-gray-400">- 生成摘要时触发</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-yellow-400">alert</span>
+                        <span class="text-gray-400">- 触发提醒规则时</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-blue-400">new_tweets</span>
+                        <span class="text-gray-400">- 获取到新推文时</span>
+                    </div>
+                </div>
+
+                <h3 class="font-medium mb-2 mt-4">Webhook 格式</h3>
+                <pre class="bg-gray-800 rounded p-2 text-xs text-gray-300 overflow-x-auto">
+{
+  "event": "digest",
+  "timestamp": "2024-01-01T12:00:00",
+  "data": { ... }
+}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Webhook 列表 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📋 Webhook 列表 ({{ webhooks|length }})</h2>
+
+        {% if webhooks %}
+        <div class="space-y-3">
+            {% for webhook in webhooks %}
+            <div class="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="text-2xl">🔗</div>
+                    <div>
+                        <div class="font-medium {% if not webhook.enabled %}text-gray-500{% endif %}">
+                            {{ webhook.name }}
+                            {% if not webhook.enabled %}<span class="text-xs text-gray-500">(已禁用)</span>{% endif %}
+                        </div>
+                        <div class="text-sm text-gray-400 truncate max-w-md">{{ webhook.url }}</div>
+                        <div class="flex gap-1 mt-1">
+                            {% for event in webhook.events %}
+                            <span class="bg-gray-700 text-xs px-2 py-0.5 rounded">{{ event }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <form action="/api/webhooks/toggle/{{ webhook.id }}" method="POST">
+                        <button type="submit" class="px-3 py-1 rounded text-sm {% if webhook.enabled %}bg-green-600 hover:bg-green-700{% else %}bg-gray-600 hover:bg-gray-500{% endif %} transition">
+                            {% if webhook.enabled %}启用{% else %}禁用{% endif %}
+                        </button>
+                    </form>
+                    <form action="/api/webhooks/remove/{{ webhook.id }}" method="POST">
+                        <button type="submit" class="text-red-400 hover:text-red-300 p-2">✕</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">🔗</p>
+            <p>还没有配置 Webhook</p>
+            <p class="text-sm">添加 Webhook 将事件推送到你的服务</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

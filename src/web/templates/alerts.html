@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}智能提醒 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 添加规则 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🔔 添加提醒规则</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- 关键词提醒 -->
+            <div class="bg-gray-900 rounded-lg p-4">
+                <h3 class="font-medium mb-3">🔍 关键词提醒</h3>
+                <form action="/api/alerts/keyword" method="POST" class="space-y-3">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="规则名称"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                        required
+                    >
+                    <input
+                        type="text"
+                        name="keywords"
+                        placeholder="关键词（逗号分隔）"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                        required
+                    >
+                    <button type="submit" class="w-full bg-x-blue hover:bg-blue-600 text-white py-2 rounded text-sm transition">
+                        添加
+                    </button>
+                </form>
+            </div>
+
+            <!-- 用户提醒 -->
+            <div class="bg-gray-900 rounded-lg p-4">
+                <h3 class="font-medium mb-3">👤 用户发推提醒</h3>
+                <form action="/api/alerts/user" method="POST" class="space-y-3">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="规则名称"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                        required
+                    >
+                    <input
+                        type="text"
+                        name="usernames"
+                        placeholder="用户名（逗号分隔）"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                        required
+                    >
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm transition">
+                        添加
+                    </button>
+                </form>
+            </div>
+
+            <!-- 互动量提醒 -->
+            <div class="bg-gray-900 rounded-lg p-4">
+                <h3 class="font-medium mb-3">🔥 高互动提醒</h3>
+                <form action="/api/alerts/engagement" method="POST" class="space-y-3">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="规则名称"
+                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-500"
+                        required
+                    >
+                    <div class="flex gap-2">
+                        <input
+                            type="number"
+                            name="min_likes"
+                            placeholder="最低点赞"
+                            value="100"
+                            class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white"
+                        >
+                        <input
+                            type="number"
+                            name="min_retweets"
+                            placeholder="最低转发"
+                            value="50"
+                            class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white"
+                        >
+                    </div>
+                    <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-sm transition">
+                        添加
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 规则列表 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📋 提醒规则 ({{ rules|length }})</h2>
+
+        {% if rules %}
+        <div class="space-y-3">
+            {% for rule in rules %}
+            <div class="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="text-2xl">
+                        {% if rule.rule_type == 'keyword' %}🔍{% elif rule.rule_type == 'user' %}👤{% else %}🔥{% endif %}
+                    </div>
+                    <div>
+                        <div class="font-medium {% if not rule.enabled %}text-gray-500{% endif %}">
+                            {{ rule.name }}
+                            {% if not rule.enabled %}<span class="text-xs text-gray-500">(已禁用)</span>{% endif %}
+                        </div>
+                        <div class="text-sm text-gray-400">
+                            {% if rule.rule_type == 'keyword' %}
+                            关键词: {{ rule.condition.keywords|join(', ') }}
+                            {% elif rule.rule_type == 'user' %}
+                            用户: {{ rule.condition.usernames|join(', ') }}
+                            {% else %}
+                            点赞 ≥ {{ rule.condition.min_likes }}, 转发 ≥ {{ rule.condition.min_retweets }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <form action="/api/alerts/toggle/{{ rule.id }}" method="POST">
+                        <button type="submit" class="px-3 py-1 rounded text-sm {% if rule.enabled %}bg-green-600 hover:bg-green-700{% else %}bg-gray-600 hover:bg-gray-500{% endif %} transition">
+                            {% if rule.enabled %}启用{% else %}禁用{% endif %}
+                        </button>
+                    </form>
+                    <form action="/api/alerts/remove/{{ rule.id }}" method="POST">
+                        <button type="submit" class="text-red-400 hover:text-red-300 p-2">✕</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">🔔</p>
+            <p>还没有设置提醒规则</p>
+            <p class="text-sm">在上方添加规则，当有匹配的推文时会通知你</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

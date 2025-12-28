@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}AI 对话助手 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold">🤖 AI 对话助手</h2>
+            <div class="flex items-center gap-4">
+                <span class="text-gray-400 text-sm">已加载 {{ tweets_count }} 条推文作为上下文</span>
+                <form action="/api/chat/clear" method="POST">
+                    <button type="submit" class="text-gray-400 hover:text-white text-sm">清除对话</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 对话历史 -->
+        <div class="bg-gray-900 rounded-lg p-4 h-96 overflow-y-auto mb-4 space-y-4" id="chat-history">
+            {% if not history %}
+            <div class="text-center text-gray-500 py-8">
+                <p class="text-4xl mb-2">🤖</p>
+                <p>你可以问我关于推文内容的任何问题</p>
+                <p class="text-sm mt-2">例如：</p>
+                <p class="text-sm text-x-blue">"总结今天的推文要点"</p>
+                <p class="text-sm text-x-blue">"@elonmusk 今天说了什么？"</p>
+                <p class="text-sm text-x-blue">"有什么关于 AI 的讨论？"</p>
+            </div>
+            {% endif %}
+
+            {% for msg in history %}
+            <div class="{% if msg.role == 'user' %}flex justify-end{% endif %}">
+                <div class="{% if msg.role == 'user' %}bg-x-blue text-white{% else %}bg-gray-700 text-gray-100{% endif %} rounded-lg p-3 max-w-[80%]">
+                    {% if msg.role == 'assistant' %}
+                    <div class="text-xs text-gray-400 mb-1">🤖 AI 助手</div>
+                    {% endif %}
+                    <div class="whitespace-pre-wrap text-sm">{{ msg.content }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 输入框 -->
+        <form action="/api/chat" method="POST" class="flex gap-4">
+            <input
+                type="text"
+                name="message"
+                placeholder="输入你的问题..."
+                class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-x-blue"
+                autocomplete="off"
+            >
+            <button type="submit" class="bg-x-blue hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition">
+                发送
+            </button>
+        </form>
+    </div>
+
+    <!-- 快捷问题 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h3 class="text-md font-bold mb-3">💡 快捷问题</h3>
+        <div class="flex flex-wrap gap-2">
+            {% for q in ["总结今天的推文要点", "有什么热门话题？", "谁的推文互动最多？", "有什么值得关注的观点？", "提取关键洞见"] %}
+            <form action="/api/chat" method="POST" class="inline">
+                <input type="hidden" name="message" value="{{ q }}">
+                <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded text-sm transition">
+                    {{ q }}
+                </button>
+            </form>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // 滚动到底部
+    const chatHistory = document.getElementById('chat-history');
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+</script>
+{% endblock %}

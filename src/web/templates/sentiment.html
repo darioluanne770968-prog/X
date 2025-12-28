@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}情绪分析 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    {% if sentiment %}
+    <!-- 总体情绪 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📊 市场情绪概览</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-gray-900 rounded-lg p-4 text-center">
+                <div class="text-4xl mb-2">{{ sentiment.trend }}</div>
+                <div class="text-gray-400 text-sm">整体趋势</div>
+            </div>
+            <div class="bg-gray-900 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold {% if sentiment.overall_score > 0 %}text-green-400{% elif sentiment.overall_score < 0 %}text-red-400{% else %}text-yellow-400{% endif %}">
+                    {{ "%.2f"|format(sentiment.overall_score) }}
+                </div>
+                <div class="text-gray-400 text-sm">情绪指数 (-1 ~ 1)</div>
+            </div>
+            <div class="bg-gray-900 rounded-lg p-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-green-400">🟢 看涨</span>
+                    <span class="font-bold">{{ sentiment.bullish_count }}</span>
+                </div>
+                <div class="flex justify-between text-sm mt-1">
+                    <span class="text-yellow-400">🟡 中性</span>
+                    <span class="font-bold">{{ sentiment.neutral_count }}</span>
+                </div>
+                <div class="flex justify-between text-sm mt-1">
+                    <span class="text-red-400">🔴 看跌</span>
+                    <span class="font-bold">{{ sentiment.bearish_count }}</span>
+                </div>
+            </div>
+            <div class="bg-gray-900 rounded-lg p-4">
+                <div class="text-gray-400 text-sm mb-1">热门话题</div>
+                <div class="flex flex-wrap gap-1">
+                    {% for topic in sentiment.hot_topics[:5] %}
+                    <span class="bg-gray-700 text-xs px-2 py-1 rounded">{{ topic }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 情绪条 -->
+        <div class="bg-gray-900 rounded-lg p-4">
+            <div class="flex items-center justify-between text-sm text-gray-400 mb-2">
+                <span>看跌</span>
+                <span>中性</span>
+                <span>看涨</span>
+            </div>
+            <div class="h-4 bg-gray-700 rounded-full overflow-hidden relative">
+                <div class="absolute inset-y-0 left-1/2 w-0.5 bg-gray-500"></div>
+                <div
+                    class="h-full {% if sentiment.overall_score > 0 %}bg-green-500{% else %}bg-red-500{% endif %} transition-all"
+                    style="width: {{ (sentiment.overall_score|abs * 50)|int }}%; {% if sentiment.overall_score > 0 %}margin-left: 50%{% else %}margin-left: {{ 50 - (sentiment.overall_score|abs * 50)|int }}%{% endif %}"
+                ></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关键信号 -->
+    {% if sentiment.key_signals %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🎯 关键信号</h2>
+        <div class="space-y-2">
+            {% for signal in sentiment.key_signals %}
+            <div class="bg-gray-900 rounded p-3 flex items-start gap-3">
+                <span class="text-yellow-400">💡</span>
+                <span class="text-gray-300">{{ signal }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 情绪趋势 -->
+    {% if trend %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📈 情绪趋势</h2>
+        <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
+            {% for t in trend %}
+            <div class="bg-gray-900 rounded p-2 text-center">
+                <div class="text-xs text-gray-500">{{ t.time }}</div>
+                <div class="text-lg font-bold {% if t.score > 0.2 %}text-green-400{% elif t.score < -0.2 %}text-red-400{% else %}text-yellow-400{% endif %}">
+                    {% if t.score > 0.2 %}🟢{% elif t.score < -0.2 %}🔴{% else %}🟡{% endif %}
+                </div>
+                <div class="text-xs text-gray-400">{{ t.count }} 条</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">📊</p>
+            <p>暂无情绪分析数据</p>
+            <p class="text-sm">请先在仪表盘生成摘要，获取推文数据</p>
+            <a href="/" class="inline-block mt-4 text-x-blue hover:underline">← 返回仪表盘</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

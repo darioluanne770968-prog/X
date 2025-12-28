@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}知识图谱 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    {% if stats.total_nodes > 0 %}
+    <!-- 统计 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">总节点</div>
+            <div class="text-2xl font-bold text-x-blue">{{ stats.total_nodes }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">用户</div>
+            <div class="text-2xl font-bold text-green-400">{{ stats.user_count }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">话题</div>
+            <div class="text-2xl font-bold text-yellow-400">{{ stats.topic_count }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">连接</div>
+            <div class="text-2xl font-bold text-purple-400">{{ stats.edge_count }}</div>
+        </div>
+    </div>
+
+    <!-- 图谱可视化 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🕸️ 关系网络</h2>
+        <div id="graph-container" class="bg-gray-900 rounded-lg" style="height: 500px;"></div>
+    </div>
+
+    <!-- Top 用户和话题 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h2 class="text-lg font-bold mb-4">👥 活跃用户 TOP 10</h2>
+            <div class="space-y-2">
+                {% for node in stats.top_users %}
+                <div class="bg-gray-900 rounded p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-x-blue rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            {{ node.id[0].upper() }}
+                        </div>
+                        <a href="https://x.com/{{ node.id }}" target="_blank" class="text-white hover:text-x-blue">
+                            @{{ node.id }}
+                        </a>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        {{ node.properties.tweet_count }} 推文 · {{ node.properties.total_engagement }} 互动
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h2 class="text-lg font-bold mb-4">🏷️ 热门话题 TOP 10</h2>
+            <div class="space-y-2">
+                {% for node in stats.top_topics %}
+                <div class="bg-gray-900 rounded p-3 flex items-center justify-between">
+                    <span class="text-yellow-400 font-medium">{{ node.label }}</span>
+                    <span class="text-sm text-gray-400">{{ node.properties.count }} 次提及</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">🕸️</p>
+            <p>暂无图谱数据</p>
+            <p class="text-sm">请先在仪表盘生成摘要，获取推文数据</p>
+            <a href="/" class="inline-block mt-4 text-x-blue hover:underline">← 返回仪表盘</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{% if stats.total_nodes > 0 %}
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script>
+    const graphData = {{ graph_data | tojson }};
+
+    const nodes = new vis.DataSet(graphData.nodes.map(n => ({
+        id: n.id,
+        label: n.label,
+        color: n.type === 'user' ? '#1DA1F2' : '#F59E0B',
+        size: n.type === 'user' ? 20 + (n.total_engagement || 0) / 100 : 15 + (n.count || 0) * 2,
+        font: { color: '#fff' }
+    })));
+
+    const edges = new vis.DataSet(graphData.edges.map(e => ({
+        from: e.source,
+        to: e.target,
+        color: { color: '#4B5563', opacity: 0.5 },
+        arrows: e.type === 'mentions' ? 'to' : undefined
+    })));
+
+    const container = document.getElementById('graph-container');
+    const network = new vis.Network(container, { nodes, edges }, {
+        physics: {
+            stabilization: { iterations: 100 },
+            barnesHut: { gravitationalConstant: -2000 }
+        },
+        interaction: { hover: true },
+        nodes: { shape: 'dot', borderWidth: 2 }
+    });
+
+    network.on('click', function(params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const node = graphData.nodes.find(n => n.id === nodeId);
+            if (node && node.type === 'user') {
+                window.open(`https://x.com/${node.id}`, '_blank');
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}
