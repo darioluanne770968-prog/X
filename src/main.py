@@ -339,6 +339,9 @@ def main():
 
   x-digest recommend              发现推荐账号
   x-digest recommend elonmusk     查找与某账号相似的账号
+
+  x-digest web                    启动 Web 管理界面
+  x-digest web --port 8080        指定端口启动
         """,
     )
 
@@ -393,6 +396,11 @@ def main():
     recommend_parser = subparsers.add_parser("recommend", help="发现推荐账号")
     recommend_parser.add_argument("username", nargs="?", help="基于某账号推荐（可选）")
 
+    # web 命令
+    web_parser = subparsers.add_parser("web", help="启动 Web 管理界面")
+    web_parser.add_argument("--host", default="127.0.0.1", help="监听地址")
+    web_parser.add_argument("--port", "-p", type=int, default=8000, help="监听端口")
+
     args = parser.parse_args()
 
     app = XDailyDigest()
@@ -436,6 +444,19 @@ def main():
 
     elif args.command == "recommend":
         app.recommend_accounts(args.username)
+
+    elif args.command == "web":
+        from .web.server import run_server
+        console.print(
+            Panel(
+                f"🌐 Web 界面已启动\n"
+                f"访问 http://{args.host}:{args.port}\n"
+                f"按 Ctrl+C 停止",
+                title="X Daily Digest",
+                border_style="blue",
+            )
+        )
+        run_server(host=args.host, port=args.port)
 
     else:
         parser.print_help()

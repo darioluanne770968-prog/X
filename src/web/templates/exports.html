@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}导出文件 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📁 导出文件</h2>
+
+        {% if exports %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="border-b border-gray-700">
+                    <tr>
+                        <th class="pb-3 text-gray-400 font-medium">文件名</th>
+                        <th class="pb-3 text-gray-400 font-medium">大小</th>
+                        <th class="pb-3 text-gray-400 font-medium">时间</th>
+                        <th class="pb-3 text-gray-400 font-medium">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    {% for export in exports %}
+                    <tr class="hover:bg-gray-700/50">
+                        <td class="py-3">
+                            <span class="text-white">📄 {{ export.name }}</span>
+                        </td>
+                        <td class="py-3 text-gray-400">{{ export.size }}</td>
+                        <td class="py-3 text-gray-400">{{ export.time }}</td>
+                        <td class="py-3">
+                            <a href="/api/export/{{ export.name }}" class="text-x-blue hover:underline">
+                                查看
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">📂</p>
+            <p>还没有导出文件</p>
+            <p class="text-sm">生成摘要时会自动创建导出文件</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

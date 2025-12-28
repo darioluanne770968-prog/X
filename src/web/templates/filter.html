@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}过滤器 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 过滤开关 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">⚙️ 过滤设置</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-gray-900 rounded p-4 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-300">过滤广告</span>
+                    <span class="{% if filter_ads %}text-green-400{% else %}text-gray-500{% endif %}">
+                        {% if filter_ads %}✅ 开启{% else %}❌ 关闭{% endif %}
+                    </span>
+                </div>
+                <p class="text-gray-500 text-sm mt-1">自动识别并过滤广告推文</p>
+            </div>
+            <div class="bg-gray-900 rounded p-4 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-300">过滤转推</span>
+                    <span class="{% if filter_retweets %}text-green-400{% else %}text-gray-500{% endif %}">
+                        {% if filter_retweets %}✅ 开启{% else %}❌ 关闭{% endif %}
+                    </span>
+                </div>
+                <p class="text-gray-500 text-sm mt-1">过滤以 RT @ 开头的推文</p>
+            </div>
+            <div class="bg-gray-900 rounded p-4 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-300">最低互动</span>
+                    <span class="text-yellow-400">{{ min_engagement }}</span>
+                </div>
+                <p class="text-gray-500 text-sm mt-1">互动分数低于此值的推文将被过滤</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 屏蔽词管理 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🔇 屏蔽词</h2>
+        <form action="/api/filter/words/add" method="POST" class="flex gap-4 mb-4">
+            <input
+                type="text"
+                name="words"
+                placeholder="输入屏蔽词，多个用逗号分隔（如: 广告, 营销, 抽奖）"
+                class="flex-1 bg-gray-700 border border-gray-600 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-x-blue"
+            >
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-medium transition">
+                添加屏蔽词
+            </button>
+        </form>
+
+        {% if blocked_words %}
+        <div class="flex flex-wrap gap-2">
+            {% for word in blocked_words %}
+            <div class="bg-red-900/30 border border-red-700 rounded-full px-3 py-1 flex items-center gap-2">
+                <span class="text-red-300">{{ word }}</span>
+                <form action="/api/filter/words/remove/{{ word }}" method="POST" class="inline">
+                    <button type="submit" class="text-red-400 hover:text-red-300">✕</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500">暂无屏蔽词</p>
+        {% endif %}
+    </div>
+
+    <!-- 屏蔽用户管理 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🚫 屏蔽用户</h2>
+        <form action="/api/filter/users/add" method="POST" class="flex gap-4 mb-4">
+            <input
+                type="text"
+                name="users"
+                placeholder="输入用户名，多个用逗号分隔"
+                class="flex-1 bg-gray-700 border border-gray-600 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-x-blue"
+            >
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded font-medium transition">
+                添加屏蔽用户
+            </button>
+        </form>
+
+        {% if blocked_users %}
+        <div class="flex flex-wrap gap-2">
+            {% for user in blocked_users %}
+            <div class="bg-red-900/30 border border-red-700 rounded-full px-3 py-1 flex items-center gap-2">
+                <span class="text-red-300">@{{ user }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500">暂无屏蔽用户</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

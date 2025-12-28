@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}关注管理 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 添加账号 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">➕ 添加关注账号</h2>
+        <form action="/api/following/add" method="POST" class="flex gap-4">
+            <input
+                type="text"
+                name="usernames"
+                placeholder="输入用户名，多个用逗号分隔（如: elonmusk, sama, karpathy）"
+                class="flex-1 bg-gray-700 border border-gray-600 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-x-blue"
+            >
+            <button type="submit" class="bg-x-blue hover:bg-blue-600 text-white px-6 py-2 rounded font-medium transition">
+                添加
+            </button>
+        </form>
+    </div>
+
+    <!-- 关注列表 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📋 关注列表 ({{ following|length }})</h2>
+
+        {% if following %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for username in following %}
+            <div class="bg-gray-900 rounded-lg p-4 border border-gray-700 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-x-blue font-bold">
+                        {{ username[0].upper() }}
+                    </div>
+                    <div>
+                        <a href="https://x.com/{{ username }}" target="_blank" class="text-white font-medium hover:text-x-blue">
+                            @{{ username }}
+                        </a>
+                    </div>
+                </div>
+                <form action="/api/following/remove/{{ username }}" method="POST">
+                    <button type="submit" class="text-red-400 hover:text-red-300 p-2" title="移除">
+                        ✕
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">🐦</p>
+            <p>还没有关注任何账号</p>
+            <p class="text-sm">在上方添加你想追踪的 Twitter 账号</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

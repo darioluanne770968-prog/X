@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">关注账号</div>
+            <div class="text-2xl font-bold text-x-blue">{{ following_count }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">缓存推文</div>
+            <div class="text-2xl font-bold text-green-400">{{ cached_tweets_count }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">导出文件</div>
+            <div class="text-2xl font-bold text-yellow-400">{{ exports_count }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">上次摘要</div>
+            <div class="text-lg font-bold text-purple-400">
+                {% if last_digest_time %}
+                {{ last_digest_time.strftime('%m-%d %H:%M') }}
+                {% else %}
+                暂无
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🚀 快速操作</h2>
+        <div class="flex flex-wrap gap-4">
+            <form action="/api/digest/generate" method="POST" class="flex items-center gap-2">
+                <select name="hours" class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm">
+                    <option value="12">最近 12 小时</option>
+                    <option value="24" selected>最近 24 小时</option>
+                    <option value="48">最近 48 小时</option>
+                    <option value="72">最近 72 小时</option>
+                </select>
+                <button type="submit" class="bg-x-blue hover:bg-blue-600 text-white px-4 py-2 rounded font-medium transition">
+                    📥 生成摘要
+                </button>
+            </form>
+
+            {% if last_digest %}
+            <form action="/api/digest/send" method="POST">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium transition">
+                    📤 发送摘要
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 最新摘要 -->
+    {% if last_digest %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📰 最新摘要</h2>
+        <div class="markdown-content bg-gray-900 rounded p-4 max-h-96 overflow-y-auto whitespace-pre-wrap text-sm">
+{{ last_digest }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 最近推文 -->
+    {% if recent_tweets %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🐦 最近推文</h2>
+        <div class="space-y-4">
+            {% for tweet in recent_tweets %}
+            <div class="bg-gray-900 rounded p-4 border border-gray-700">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-white">{{ tweet.author_name }}</span>
+                        <span class="text-gray-500">@{{ tweet.author_username }}</span>
+                        <span class="text-gray-600 text-sm">· {{ tweet.created_at.strftime('%m-%d %H:%M') }}</span>
+                    </div>
+                    <div class="text-gray-500 text-sm">
+                        ❤️ {{ tweet.like_count }} · 🔁 {{ tweet.retweet_count }}
+                    </div>
+                </div>
+                <p class="mt-2 text-gray-300">{{ tweet.text[:280] }}{% if tweet.text|length > 280 %}...{% endif %}</p>
+                <a href="{{ tweet.url }}" target="_blank" class="text-x-blue text-sm hover:underline mt-2 inline-block">
+                    查看原文 →
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 自动刷新状态
+    setInterval(async () => {
+        const resp = await fetch('/api/status');
+        const data = await resp.json();
+        if (data.current_task) {
+            // 如果有任务在运行，刷新页面
+            location.reload();
+        }
+    }, 5000);
+</script>
+{% endblock %}

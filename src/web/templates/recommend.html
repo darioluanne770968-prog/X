@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}账号推荐 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 搜索表单 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🔍 发现优质账号</h2>
+        <form action="/api/recommend/discover" method="POST" class="flex gap-4">
+            <input
+                type="text"
+                name="username"
+                placeholder="输入用户名查找相似账号（留空则基于关注列表推荐）"
+                value="{{ search_username or '' }}"
+                class="flex-1 bg-gray-700 border border-gray-600 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-x-blue"
+            >
+            <button type="submit" class="bg-x-blue hover:bg-blue-600 text-white px-6 py-2 rounded font-medium transition">
+                🔍 发现
+            </button>
+        </form>
+    </div>
+
+    {% if accounts %}
+    <!-- 推荐账号列表 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🌟 推荐账号 ({{ accounts|length }})</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for acc in accounts %}
+            <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                <div class="flex items-start space-x-3">
+                    <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-x-blue font-bold text-lg">
+                        {{ acc.username[0].upper() }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <a href="https://x.com/{{ acc.username }}" target="_blank" class="font-bold text-white hover:text-x-blue truncate">
+                                {{ acc.name }}
+                            </a>
+                            {% if acc.verified %}
+                            <span class="text-x-blue">✓</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-gray-500 text-sm">@{{ acc.username }}</p>
+                        <p class="text-yellow-400 text-sm">{{ "{:,}".format(acc.followers) }} 粉丝</p>
+                    </div>
+                </div>
+                {% if acc.description %}
+                <p class="text-gray-400 text-sm mt-2 line-clamp-2">{{ acc.description[:100] }}{% if acc.description|length > 100 %}...{% endif %}</p>
+                {% endif %}
+                <div class="mt-3 flex gap-2">
+                    <a href="https://x.com/{{ acc.username }}" target="_blank"
+                       class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition">
+                        查看主页
+                    </a>
+                    <form action="/api/following/add" method="POST" class="inline">
+                        <input type="hidden" name="usernames" value="{{ acc.username }}">
+                        <button type="submit" class="text-xs bg-x-blue hover:bg-blue-600 px-3 py-1 rounded transition">
+                            + 关注
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- AI 分析 -->
+    {% if analysis %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">🤖 AI 分析</h2>
+        <div class="markdown-content bg-gray-900 rounded p-4 whitespace-pre-wrap text-sm">
+{{ analysis }}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">🌟</p>
+            <p>点击「发现」按钮开始探索优质账号</p>
+            <p class="text-sm mt-2">
+                留空搜索框：基于你的关注列表推荐<br>
+                输入用户名：查找与该账号相似的账号
+            </p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

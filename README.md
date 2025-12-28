@@ -20,6 +20,7 @@
 - 🔇 **内容过滤** - 屏蔽词、过滤广告、过滤转推
 - 📁 **Markdown 导出** - 导出推文和摘要为 Markdown 文件
 - 🌟 **账号推荐** - 发现优质账号，扩展信息源
+- 🖥️ **Web 界面** - 可视化管理界面，支持所有功能
 
 ## 快速开始
 
@@ -114,6 +115,10 @@ x-digest exports                # 查看导出文件列表
 # 账号推荐
 x-digest recommend              # 基于关注发现新账号
 x-digest recommend elonmusk     # 查找与某账号相似的账号
+
+# Web 界面
+x-digest web                    # 启动 Web 界面 (http://127.0.0.1:8000)
+x-digest web --port 8080        # 指定端口
 ```
 
 ## 配置说明
@@ -146,7 +151,10 @@ X/
 │   ├── summarizer.py      # AI 摘要生成
 │   ├── notifier.py        # 通知推送
 │   ├── extensions.py      # 扩展功能（Thread/翻译/过滤/导出/推荐）
-│   └── main.py            # 主程序入口
+│   ├── main.py            # 主程序入口
+│   └── web/               # Web 界面
+│       ├── server.py      # FastAPI 服务器
+│       └── templates/     # HTML 模板
 ├── data/
 │   ├── following.json     # 关注列表
 │   ├── filter_config.json # 过滤配置
