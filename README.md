@@ -6,6 +6,7 @@
 
 ## 功能特性
 
+### 核心功能
 - 🐦 **自动抓取** - 获取关注账号的最新推文
 - 🤖 **AI 摘要** - 使用 GPT 生成结构化摘要
 - 📊 **智能排序** - 按互动热度筛选高质量内容
@@ -13,12 +14,18 @@
 - 📬 **多渠道推送** - 支持 Telegram、邮件
 - ⏰ **定时任务** - 每天固定时间自动发送
 
+### 扩展功能
+- 🧵 **Thread 展开** - 把长 Thread 合并成完整文章，方便阅读
+- 🌐 **推文翻译** - 自动翻译英文推文为中文
+- 🔇 **内容过滤** - 屏蔽词、过滤广告、过滤转推
+- 📁 **Markdown 导出** - 导出推文和摘要为 Markdown 文件
+- 🌟 **账号推荐** - 发现优质账号，扩展信息源
+
 ## 快速开始
 
 ### 1. 安装依赖
 
 ```bash
-# 克隆项目
 cd X
 
 # 安装依赖 (推荐使用 uv)
@@ -48,7 +55,6 @@ cp .env.example .env
 ### 3. 添加关注账号
 
 ```bash
-# 添加你想追踪的 Twitter 账号
 x-digest add elonmusk sama karpathy
 ```
 
@@ -64,18 +70,50 @@ x-digest schedule
 
 ## 命令参考
 
+### 基础命令
+
 ```bash
-x-digest run              # 立即生成并发送摘要
-x-digest run --hours 12   # 只获取最近 12 小时的推文
+# 生成摘要
+x-digest run                    # 立即生成并发送摘要
+x-digest run --hours 12         # 只获取最近 12 小时的推文
+x-digest run --translate        # 生成摘要并翻译英文内容
+x-digest run --export           # 生成摘要并导出 Markdown
 
-x-digest schedule         # 启动定时任务
+# 定时任务
+x-digest schedule               # 启动定时任务
 
-x-digest add <usernames>  # 添加关注账号
-x-digest remove <usernames>  # 移除关注账号
-x-digest list             # 查看关注列表
+# 账号管理
+x-digest add <usernames>        # 添加关注账号
+x-digest remove <usernames>     # 移除关注账号
+x-digest list                   # 查看关注列表
 
-x-digest search "AI"      # 搜索话题并生成摘要
-x-digest search "GPT" --hours 48  # 搜索最近 48 小时
+# 话题搜索
+x-digest search "AI"            # 搜索话题并生成摘要
+x-digest search "GPT" --hours 48
+```
+
+### 扩展命令
+
+```bash
+# Thread 展开
+x-digest thread <推文链接>      # 展开 Thread 并导出
+
+# 翻译
+x-digest translate "Hello world"     # 翻译文本
+x-digest translate "你好" --to en    # 翻译为英文
+
+# 内容过滤
+x-digest filter list            # 查看过滤配置
+x-digest filter add 广告 营销   # 添加屏蔽词
+x-digest filter remove 广告     # 移除屏蔽词
+
+# 导出
+x-digest export                 # 导出缓存的推文为 Markdown
+x-digest exports                # 查看导出文件列表
+
+# 账号推荐
+x-digest recommend              # 基于关注发现新账号
+x-digest recommend elonmusk     # 查找与某账号相似的账号
 ```
 
 ## 配置说明
@@ -107,10 +145,13 @@ X/
 │   ├── twitter_client.py  # Twitter API 客户端
 │   ├── summarizer.py      # AI 摘要生成
 │   ├── notifier.py        # 通知推送
+│   ├── extensions.py      # 扩展功能（Thread/翻译/过滤/导出/推荐）
 │   └── main.py            # 主程序入口
 ├── data/
 │   ├── following.json     # 关注列表
-│   └── tweets_cache.json  # 推文缓存
+│   ├── filter_config.json # 过滤配置
+│   ├── tweets_cache.json  # 推文缓存
+│   └── exports/           # 导出文件目录
 ├── .env.example
 ├── pyproject.toml
 └── README.md
@@ -135,13 +176,22 @@ X/
 ### 作为 Python 库使用
 
 ```python
-import asyncio
 from src.twitter_client import TwitterClient
 from src.summarizer import Summarizer
+from src.extensions import Translator, ContentFilter, ThreadExpander
 
 # 获取推文
 client = TwitterClient()
 tweets = client.get_user_tweets("elonmusk", hours=24)
+
+# 过滤内容
+filter = ContentFilter()
+filter.add_blocked_words(["广告", "营销"])
+tweets = filter.filter_tweets(tweets)
+
+# 翻译推文
+translator = Translator()
+tweets = translator.translate_tweets(tweets, target_lang="zh")
 
 # 生成摘要
 summarizer = Summarizer()
@@ -149,19 +199,31 @@ digest = summarizer.generate_digest(tweets)
 print(digest)
 ```
 
-### 自定义摘要分类
+### 展开 Thread
 
 ```python
-summarizer = Summarizer()
+from src.extensions import ThreadExpander
 
-# 按分类生成摘要
-digest = summarizer.generate_digest(
-    tweets,
-    categories=["AI/技术", "创业", "投资"]
-)
+expander = ThreadExpander()
+thread = expander.get_thread("1234567890")
 
-# 提取关键洞见
-insights = summarizer.extract_insights(tweets)
+print(thread.full_text)        # 完整文本
+print(thread.to_markdown())    # Markdown 格式
+```
+
+### 发现优质账号
+
+```python
+from src.extensions import AccountRecommender
+
+recommender = AccountRecommender()
+
+# 基于关注列表发现
+accounts = recommender.discover_from_following()
+
+# 分析账号质量
+analysis = recommender.analyze_accounts(accounts)
+print(analysis)
 ```
 
 ## License
