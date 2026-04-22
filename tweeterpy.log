@@ -1,0 +1,123 @@
+2025-12-30 20:47:58,541 [WARNING] [Line No. 216] tweeterpy.util : update_required :: [Errno 2] No such file or directory: '/var/folders/3r/tcjr270d31ggmzfkprhds1880000gn/T/tweeterpy_api.json'
+2025-12-30 20:48:01,564 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:48:23,586 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:48:23,588 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:48:23,588 [WARNING] [Line No. 169] tweeterpy.tweeterpy : wrapper :: User is not authenticated.
+2025-12-30 20:48:45,259 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:48:45,261 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:49:10,123 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:49:10,126 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:52:30,217 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:52:30,219 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:52:55,240 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:52:55,242 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:53:13,683 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:53:13,686 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:53:47,769 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:53:47,770 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:54:14,481 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:54:14,483 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:54:46,601 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:54:46,602 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:55:12,746 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:55:12,748 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:55:17,021 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:55:17,025 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:55:56,257 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:55:56,259 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:56:00,354 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 20:56:00,359 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 20:56:43,128 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 20:56:43,128 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:8]
+2025-12-30 20:56:43,128 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[9:14]
+2025-12-30 20:56:43,128 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 20:56:43,128 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 20:56:43,129 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[15:23]
+2025-12-30 20:56:43,129 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[24:32]
+2025-12-30 20:56:43,129 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 20:56:43,129 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:02:13,298 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 21:02:13,301 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 21:02:18,680 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 21:02:18,684 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 21:16:37,725 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:8]
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[9:14]
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[15:23]
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[24:32]
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:16:37,726 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:5]
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[6:8]
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[9:14]
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[15:22]
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:01,215 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:17:04,861 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:5]
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[6:8]
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[9:14]
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[15:22]
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:04,862 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:17:19,322 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:19,322 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:9]
+2025-12-30 21:17:19,322 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[10:18]
+2025-12-30 21:17:19,322 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:19,323 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:5]
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[6:8]
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[9:14]
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[15:22]
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:40,564 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:5]
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[6:8]
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[9:14]
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[15:22]
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:45,232 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:17:53,915 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:53,915 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:5]
+2025-12-30 21:17:53,915 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[6:8]
+2025-12-30 21:17:53,915 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:53,915 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 21:17:53,916 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[9:14]
+2025-12-30 21:17:53,916 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[15:22]
+2025-12-30 21:17:53,916 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 21:17:53,916 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 21:28:40,446 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 21:28:40,449 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 21:28:44,120 [WARNING] [Line No. 49] tweeterpy.updater : __init__ :: Skipping API Updates. Couldn't get the latest API data.
+2025-12-30 21:28:44,123 [INFO] [Line No. 56] tweeterpy.updater : __init__ :: API Updated Successfully.
+2025-12-30 22:07:41,644 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 22:07:41,645 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:5]
+2025-12-30 22:07:41,646 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[6:8]
+2025-12-30 22:07:41,646 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 22:07:41,646 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 22:07:41,646 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[9:14]
+2025-12-30 22:07:41,646 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[15:22]
+2025-12-30 22:07:41,646 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 22:07:41,646 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data
+2025-12-30 22:07:42,930 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[0:5]
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[6:8]
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_start with no data
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_name with data[9:14]
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 624] python_multipart.multipart : callback :: Calling on_field_data with data[15:22]
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_field_end with no data
+2025-12-30 22:07:42,931 [DEBUG] [Line No. 627] python_multipart.multipart : callback :: Calling on_end with no data

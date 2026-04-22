@@ -1,7 +1,8 @@
-"""通知推送模块 - 支持 Telegram 和邮件"""
+"""通知推送模块 - 支持 Telegram、邮件和 Discord"""
 
 import smtplib
 import asyncio
+from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from abc import ABC, abstractmethod
@@ -199,14 +200,100 @@ class ConsoleNotifier(Notifier):
         return True
 
 
+class DiscordNotifier(Notifier):
+    """Discord Webhook 通知"""
+
+    def __init__(self, webhook_url: str = None):
+        self.webhook_url = webhook_url
+        self._enabled = bool(webhook_url)
+
+    @property
+    def enabled(self) -> bool:
+        return self._enabled
+
+    async def send(self, title: str, content: str) -> bool:
+        """发送 Discord 消息"""
+        if not self.enabled:
+            print("Discord Webhook 未配置，跳过发送")
+            return False
+
+        # Discord embed 格式
+        embed = {
+            "title": title,
+            "description": content[:4096],  # Discord 限制
+            "color": 0x1DA1F2,  # Twitter 蓝色
+            "timestamp": datetime.now().isoformat(),
+            "footer": {
+                "text": "X Daily Digest"
+            }
+        }
+
+        # 如果内容太长，分割发送
+        messages = self._split_content(content, max_length=4096)
+
+        async with aiohttp.ClientSession() as session:
+            for i, msg_content in enumerate(messages):
+                payload = {
+                    "embeds": [{
+                        "title": title if i == 0 else f"{title} (续 {i+1})",
+                        "description": msg_content,
+                        "color": 0x1DA1F2,
+                    }]
+                }
+
+                try:
+                    async with session.post(
+                        self.webhook_url,
+                        json=payload,
+                    ) as resp:
+                        if resp.status not in (200, 204):
+                            error = await resp.text()
+                            print(f"Discord 发送失败: {error}")
+                            return False
+                except Exception as e:
+                    print(f"Discord 发送异常: {e}")
+                    return False
+
+        print("Discord 消息发送成功")
+        return True
+
+    def _split_content(self, text: str, max_length: int = 4096) -> list[str]:
+        """分割长内容"""
+        if len(text) <= max_length:
+            return [text]
+
+        messages = []
+        while text:
+            if len(text) <= max_length:
+                messages.append(text)
+                break
+
+            split_point = text.rfind("\n", 0, max_length)
+            if split_point == -1:
+                split_point = max_length
+
+            messages.append(text[:split_point])
+            text = text[split_point:].lstrip()
+
+        return messages
+
+
 class NotificationManager:
     """通知管理器 - 统一管理多个通知渠道"""
 
-    def __init__(self):
+    def __init__(self, discord_webhooks: list[str] = None):
         self.notifiers: list[Notifier] = [
             TelegramNotifier(),
             EmailNotifier(),
         ]
+        # 添加 Discord webhooks
+        if discord_webhooks:
+            for webhook_url in discord_webhooks:
+                self.notifiers.append(DiscordNotifier(webhook_url))
+
+    def add_discord_webhook(self, webhook_url: str) -> None:
+        """动态添加 Discord webhook"""
+        self.notifiers.append(DiscordNotifier(webhook_url))
 
     async def send_all(self, title: str, content: str) -> dict[str, bool]:
         """通过所有启用的渠道发送通知"""
@@ -231,6 +318,13 @@ class NotificationManager:
     async def send_email(self, title: str, content: str) -> bool:
         """只发送邮件"""
         notifier = EmailNotifier()
+        if notifier.enabled:
+            return await notifier.send(title, content)
+        return False
+
+    async def send_discord(self, title: str, content: str, webhook_url: str) -> bool:
+        """发送到指定的 Discord webhook"""
+        notifier = DiscordNotifier(webhook_url)
         if notifier.enabled:
             return await notifier.send(title, content)
         return False

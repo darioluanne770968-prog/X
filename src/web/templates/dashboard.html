@@ -4,8 +4,40 @@
 
 {% block content %}
 <div class="space-y-6">
+    <!-- 数据源状态提示 -->
+    {% if data_source.auto_available %}
+    <div class="bg-green-900/50 border border-green-700 rounded-lg p-4">
+        <div class="flex items-start space-x-3">
+            <span class="text-2xl">✅</span>
+            <div>
+                <h3 class="font-bold text-green-400">自动获取可用</h3>
+                <p class="text-gray-300 text-sm mt-1">
+                    数据源: <span class="text-green-400">{{ data_source.recommendation }}</span>
+                    - 可以自动从 Twitter 获取推文数据。
+                </p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-yellow-900/50 border border-yellow-700 rounded-lg p-4">
+        <div class="flex items-start space-x-3">
+            <span class="text-2xl">⚠️</span>
+            <div>
+                <h3 class="font-bold text-yellow-400">自动获取不可用</h3>
+                <p class="text-gray-300 text-sm mt-1">
+                    TweeterPy 和 Nitter 均不可用。
+                    请前往 <a href="/manual-input" class="text-x-blue hover:underline">手动输入页面</a> 添加推文后再生成摘要。
+                </p>
+                <p class="text-gray-400 text-xs mt-2">
+                    当前手动推文: {{ data_source.manual_tweets_count }} 条
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- 统计卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
             <div class="text-gray-400 text-sm">关注账号</div>
             <div class="text-2xl font-bold text-x-blue">{{ following_count }}</div>
@@ -15,8 +47,8 @@
             <div class="text-2xl font-bold text-green-400">{{ cached_tweets_count }}</div>
         </div>
         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <div class="text-gray-400 text-sm">导出文件</div>
-            <div class="text-2xl font-bold text-yellow-400">{{ exports_count }}</div>
+            <div class="text-gray-400 text-sm">手动推文</div>
+            <div class="text-2xl font-bold text-yellow-400">{{ data_source.manual_tweets_count }}</div>
         </div>
         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
             <div class="text-gray-400 text-sm">上次摘要</div>
@@ -33,26 +65,51 @@
     <!-- 操作按钮 -->
     <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h2 class="text-lg font-bold mb-4">🚀 快速操作</h2>
-        <div class="flex flex-wrap gap-4">
-            <form action="/api/digest/generate" method="POST" class="flex items-center gap-2">
+        <form action="/api/digest/generate" method="POST" class="flex flex-wrap items-end gap-4">
+            <div>
+                <label class="block text-gray-400 text-sm mb-1">时间范围</label>
                 <select name="hours" class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm">
                     <option value="12">最近 12 小时</option>
                     <option value="24" selected>最近 24 小时</option>
                     <option value="48">最近 48 小时</option>
                     <option value="72">最近 72 小时</option>
                 </select>
-                <button type="submit" class="bg-x-blue hover:bg-blue-600 text-white px-4 py-2 rounded font-medium transition">
-                    📥 生成摘要
-                </button>
-            </form>
+            </div>
+
+            <div>
+                <label class="block text-gray-400 text-sm mb-1">摘要风格</label>
+                <select name="style" class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm">
+                    {% for key, style in styles.items() %}
+                    <option value="{{ key }}" {% if key == 'default' %}selected{% endif %}>
+                        {{ style.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="bg-x-blue hover:bg-blue-600 text-white px-4 py-2 rounded font-medium transition">
+                📥 生成摘要
+            </button>
 
             {% if last_digest %}
-            <form action="/api/digest/send" method="POST">
+            </form>
+            <form action="/api/digest/send" method="POST" class="inline">
                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium transition">
                     📤 发送摘要
                 </button>
             </form>
+            {% else %}
+            </form>
             {% endif %}
+        </div>
+
+        <!-- 风格说明 -->
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+            {% for key, style in styles.items() %}
+            <div class="text-xs text-gray-500 p-2 bg-gray-900 rounded">
+                <span class="text-gray-300">{{ style.name }}</span>: {{ style.description }}
+            </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -74,19 +131,40 @@
             {% for tweet in recent_tweets %}
             <div class="bg-gray-900 rounded p-4 border border-gray-700">
                 <div class="flex items-start justify-between">
-                    <div class="flex items-center space-x-2">
-                        <span class="font-bold text-white">{{ tweet.author_name }}</span>
-                        <span class="text-gray-500">@{{ tweet.author_username }}</span>
-                        <span class="text-gray-600 text-sm">· {{ tweet.created_at.strftime('%m-%d %H:%M') }}</span>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 flex-wrap">
+                            <span class="font-bold text-white">{{ tweet.author_name }}</span>
+                            <span class="text-gray-500">@{{ tweet.author_username }}</span>
+                            <span class="text-gray-600 text-sm">· {{ tweet.created_at.strftime('%m-%d %H:%M') }}</span>
+                        </div>
+                        <p class="mt-2 text-gray-300">{{ tweet.text[:280] }}{% if tweet.text|length > 280 %}...{% endif %}</p>
+                        <div class="mt-2 flex items-center space-x-4 text-sm">
+                            <span class="text-gray-500">❤️ {{ tweet.like_count }}</span>
+                            <span class="text-gray-500">🔁 {{ tweet.retweet_count }}</span>
+                            <span class="text-gray-500">💬 {{ tweet.reply_count }}</span>
+                            <a href="{{ tweet.url }}" target="_blank" class="text-x-blue hover:underline">
+                                查看原文 →
+                            </a>
+                        </div>
                     </div>
-                    <div class="text-gray-500 text-sm">
-                        ❤️ {{ tweet.like_count }} · 🔁 {{ tweet.retweet_count }}
-                    </div>
+
+                    <!-- 书签按钮 -->
+                    <button onclick="bookmarkTweet('{{ tweet.id }}')"
+                            class="text-gray-500 hover:text-yellow-400 p-2 transition"
+                            title="添加书签">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                        </svg>
+                    </button>
                 </div>
-                <p class="mt-2 text-gray-300">{{ tweet.text[:280] }}{% if tweet.text|length > 280 %}...{% endif %}</p>
-                <a href="{{ tweet.url }}" target="_blank" class="text-x-blue text-sm hover:underline mt-2 inline-block">
-                    查看原文 →
-                </a>
+
+                <!-- 评论预览按钮 -->
+                <button onclick="loadComments('{{ tweet.id }}')"
+                        class="mt-2 text-gray-500 hover:text-x-blue text-sm">
+                    💬 查看精彩评论
+                </button>
+                <div id="comments-{{ tweet.id }}" class="hidden mt-3 space-y-2"></div>
             </div>
             {% endfor %}
         </div>
@@ -94,6 +172,34 @@
     {% endif %}
 </div>
 
+<!-- 书签弹窗 -->
+<div id="bookmarkModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 w-full max-w-md mx-4">
+        <h3 class="text-lg font-bold text-white mb-4">🔖 添加书签</h3>
+        <form id="bookmarkForm" method="POST">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-300 text-sm mb-1">备注（可选）</label>
+                    <input type="text" name="note" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+                           placeholder="添加备注...">
+                </div>
+                <div>
+                    <label class="block text-gray-300 text-sm mb-1">标签（逗号分隔）</label>
+                    <input type="text" name="tags" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+                           placeholder="AI, 重要, 稍后阅读">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="hideBookmarkModal()" class="px-4 py-2 text-gray-400 hover:text-white">
+                    取消
+                </button>
+                <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded font-medium">
+                    保存
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -103,9 +209,76 @@
         const resp = await fetch('/api/status');
         const data = await resp.json();
         if (data.current_task) {
-            // 如果有任务在运行，刷新页面
             location.reload();
         }
     }, 5000);
+
+    // 书签功能
+    let currentTweetId = null;
+
+    function bookmarkTweet(tweetId) {
+        currentTweetId = tweetId;
+        document.getElementById('bookmarkForm').action = `/api/bookmarks/add/${tweetId}`;
+        document.getElementById('bookmarkModal').classList.remove('hidden');
+        document.getElementById('bookmarkModal').classList.add('flex');
+    }
+
+    function hideBookmarkModal() {
+        document.getElementById('bookmarkModal').classList.add('hidden');
+        document.getElementById('bookmarkModal').classList.remove('flex');
+        currentTweetId = null;
+    }
+
+    document.getElementById('bookmarkModal').addEventListener('click', function(e) {
+        if (e.target === this) hideBookmarkModal();
+    });
+
+    document.getElementById('bookmarkForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            hideBookmarkModal();
+            // 显示成功提示
+            alert('已添加到书签！');
+        }
+    });
+
+    // 加载评论
+    async function loadComments(tweetId) {
+        const container = document.getElementById(`comments-${tweetId}`);
+
+        if (!container.classList.contains('hidden')) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        container.innerHTML = '<div class="text-gray-500 text-sm">加载中...</div>';
+        container.classList.remove('hidden');
+
+        try {
+            const response = await fetch(`/api/tweets/${tweetId}/comments`);
+            const data = await response.json();
+
+            if (data.comments && data.comments.length > 0) {
+                container.innerHTML = data.comments.slice(0, 5).map(c => `
+                    <div class="bg-gray-800 rounded p-2 text-sm">
+                        <div class="text-gray-400">@${c.author_username}</div>
+                        <div class="text-gray-300 mt-1">${c.text.substring(0, 200)}${c.text.length > 200 ? '...' : ''}</div>
+                        <div class="text-gray-500 text-xs mt-1">❤️ ${c.like_count}</div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="text-gray-500 text-sm">暂无评论</div>';
+            }
+        } catch (err) {
+            container.innerHTML = '<div class="text-red-400 text-sm">加载失败</div>';
+        }
+    }
 </script>
 {% endblock %}

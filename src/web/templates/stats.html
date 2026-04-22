@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}统计 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">📈 统计仪表盘</h1>
+
+    <!-- 概览卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">今日推文</div>
+            <div class="text-3xl font-bold text-x-blue">{{ today_tweets }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">本周摘要</div>
+            <div class="text-3xl font-bold text-green-400">{{ week_digests }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">平均互动</div>
+            <div class="text-3xl font-bold text-yellow-400">{{ avg_engagement }}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="text-gray-400 text-sm">市场情绪</div>
+            <div class="text-3xl font-bold {% if sentiment_score > 0 %}text-green-400{% elif sentiment_score < 0 %}text-red-400{% else %}text-gray-400{% endif %}">
+                {% if sentiment_score > 0.3 %}😊{% elif sentiment_score < -0.3 %}😟{% else %}😐{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 推文趋势图表 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📊 推文趋势（最近30天）</h2>
+        <div class="h-64" id="tweetChart"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 热门作者 -->
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h2 class="text-lg font-bold mb-4">🔥 热门作者</h2>
+            <div class="space-y-3">
+                {% for author in top_authors %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-x-blue rounded-full flex items-center justify-center text-sm font-bold">
+                            {{ loop.index }}
+                        </div>
+                        <span class="text-white">@{{ author.username }}</span>
+                    </div>
+                    <span class="text-gray-400">{{ author.count }} 条</span>
+                </div>
+                {% else %}
+                <div class="text-gray-500 text-center py-4">暂无数据</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 热门话题 -->
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h2 class="text-lg font-bold mb-4">💬 热门话题</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for topic in top_topics %}
+                <span class="px-3 py-1 bg-gray-700 rounded-full text-sm text-gray-300">
+                    {{ topic.name }} <span class="text-gray-500">({{ topic.count }})</span>
+                </span>
+                {% else %}
+                <div class="text-gray-500 text-center py-4 w-full">暂无数据</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 情绪趋势 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📈 情绪趋势</h2>
+        <div class="h-48" id="sentimentChart"></div>
+    </div>
+
+    <!-- 摘要历史 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📝 摘要历史</h2>
+        <div class="space-y-3">
+            {% for digest in recent_digests %}
+            <div class="flex items-center justify-between p-3 bg-gray-900 rounded border border-gray-700">
+                <div>
+                    <span class="text-white">{{ digest.created_at }}</span>
+                    <span class="text-gray-500 ml-2">{{ digest.tweet_count }} 条推文</span>
+                    <span class="px-2 py-0.5 bg-gray-700 rounded text-xs text-gray-400 ml-2">{{ digest.style }}</span>
+                </div>
+                <a href="/api/digest/view/{{ digest.id }}" class="text-x-blue hover:underline text-sm">
+                    查看
+                </a>
+            </div>
+            {% else %}
+            <div class="text-gray-500 text-center py-4">暂无摘要历史</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 推文趋势图表
+    const tweetCtx = document.getElementById('tweetChart');
+    if (tweetCtx) {
+        new Chart(tweetCtx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|tojson }},
+                datasets: [{
+                    label: '推文数量',
+                    data: {{ chart_data|tojson }},
+                    borderColor: '#1DA1F2',
+                    backgroundColor: 'rgba(29, 161, 242, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#374151' },
+                        ticks: { color: '#9CA3AF' }
+                    },
+                    x: {
+                        grid: { color: '#374151' },
+                        ticks: { color: '#9CA3AF' }
+                    }
+                }
+            }
+        });
+    }
+
+    // 情绪趋势图表
+    const sentimentCtx = document.getElementById('sentimentChart');
+    if (sentimentCtx) {
+        new Chart(sentimentCtx, {
+            type: 'line',
+            data: {
+                labels: {{ sentiment_labels|tojson }},
+                datasets: [{
+                    label: '情绪指数',
+                    data: {{ sentiment_data|tojson }},
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        min: -1,
+                        max: 1,
+                        grid: { color: '#374151' },
+                        ticks: { color: '#9CA3AF' }
+                    },
+                    x: {
+                        grid: { color: '#374151' },
+                        ticks: { color: '#9CA3AF' }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

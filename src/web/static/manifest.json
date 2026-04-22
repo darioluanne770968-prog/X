@@ -1,0 +1,53 @@
+{
+  "name": "X Daily Digest",
+  "short_name": "X Digest",
+  "description": "每日 X/Twitter 摘要 - 告别无限刷推，每天只看精华",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#15202B",
+  "theme_color": "#1DA1F2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/static/screenshot-narrow.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["news", "productivity", "social"],
+  "shortcuts": [
+    {
+      "name": "生成摘要",
+      "short_name": "摘要",
+      "url": "/?action=digest",
+      "icons": [{"src": "/static/icon-digest.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "书签",
+      "short_name": "书签",
+      "url": "/bookmarks",
+      "icons": [{"src": "/static/icon-bookmark.png", "sizes": "192x192"}]
+    }
+  ]
+}

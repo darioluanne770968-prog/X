@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}手动输入推文 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 数据源状态 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📡 数据源状态</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-gray-900 rounded p-3">
+                <div class="text-gray-400 text-sm">Nitter RSS</div>
+                <div class="text-lg font-bold {% if data_source.nitter_available %}text-green-400{% else %}text-red-400{% endif %}">
+                    {% if data_source.nitter_available %}✓ 可用{% else %}✗ 不可用{% endif %}
+                </div>
+            </div>
+            <div class="bg-gray-900 rounded p-3">
+                <div class="text-gray-400 text-sm">手动推文</div>
+                <div class="text-lg font-bold text-x-blue">{{ data_source.manual_tweets_count }} 条</div>
+            </div>
+            <div class="bg-gray-900 rounded p-3">
+                <div class="text-gray-400 text-sm">推荐数据源</div>
+                <div class="text-lg font-bold text-yellow-400">{{ data_source.recommendation }}</div>
+            </div>
+            <div class="bg-gray-900 rounded p-3">
+                <div class="text-gray-400 text-sm">状态信息</div>
+                <div class="text-sm text-gray-300">{{ data_source.error_message }}</div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <form action="/api/check-nitter" method="POST" class="inline">
+                <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm transition">
+                    🔄 重新检测 Nitter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 单条输入 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">✏️ 添加单条推文</h2>
+        <form action="/api/manual-tweets/add" method="POST" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">用户名 *</label>
+                    <input type="text" name="author_username" required
+                           placeholder="elonmusk"
+                           class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-x-blue">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-1">显示名称</label>
+                    <input type="text" name="author_name"
+                           placeholder="Elon Musk（可选）"
+                           class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-x-blue">
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-400 text-sm mb-1">推文内容 *</label>
+                <textarea name="text" required rows="3"
+                          placeholder="输入推文内容..."
+                          class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-x-blue"></textarea>
+            </div>
+            <div>
+                <label class="block text-gray-400 text-sm mb-1">推文链接（可选）</label>
+                <input type="url" name="url"
+                       placeholder="https://x.com/elonmusk/status/..."
+                       class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-x-blue">
+            </div>
+            <button type="submit" class="bg-x-blue hover:bg-blue-600 text-white px-6 py-2 rounded font-medium transition">
+                添加推文
+            </button>
+        </form>
+    </div>
+
+    <!-- 批量输入 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">📋 批量导入推文</h2>
+        <p class="text-gray-400 text-sm mb-4">
+            支持 JSON 格式批量导入。每条推文需包含 text 和 author_username 字段。
+        </p>
+        <form action="/api/manual-tweets/batch" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-gray-400 text-sm mb-1">JSON 数据</label>
+                <textarea name="json_data" rows="8"
+                          placeholder='[
+  {
+    "text": "推文内容1",
+    "author_username": "user1",
+    "author_name": "用户1",
+    "url": "https://x.com/user1/status/123"
+  },
+  {
+    "text": "推文内容2",
+    "author_username": "user2"
+  }
+]'
+                          class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm font-mono focus:outline-none focus:border-x-blue"></textarea>
+            </div>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-medium transition">
+                批量导入
+            </button>
+        </form>
+    </div>
+
+    <!-- 已添加的手动推文 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold">📝 手动添加的推文 ({{ manual_tweets|length }})</h2>
+            {% if manual_tweets %}
+            <form action="/api/manual-tweets/clear" method="POST" class="inline"
+                  onsubmit="return confirm('确定要清空所有手动推文吗？')">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm transition">
+                    🗑️ 清空全部
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        {% if manual_tweets %}
+        <div class="space-y-4">
+            {% for tweet in manual_tweets %}
+            <div class="bg-gray-900 rounded p-4 border border-gray-700">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 flex-wrap">
+                            <span class="font-bold text-white">{{ tweet.author_name }}</span>
+                            <span class="text-gray-500">@{{ tweet.author_username }}</span>
+                            <span class="text-gray-600 text-sm">· {{ tweet.created_at.strftime('%m-%d %H:%M') }}</span>
+                            <span class="bg-yellow-600 text-black text-xs px-2 py-0.5 rounded">手动</span>
+                        </div>
+                        <p class="mt-2 text-gray-300">{{ tweet.text[:300] }}{% if tweet.text|length > 300 %}...{% endif %}</p>
+                        {% if tweet.url %}
+                        <a href="{{ tweet.url }}" target="_blank" class="mt-2 inline-block text-x-blue hover:underline text-sm">
+                            查看原文 →
+                        </a>
+                        {% endif %}
+                    </div>
+                    <form action="/api/manual-tweets/delete/{{ tweet.id }}" method="POST">
+                        <button type="submit" class="text-red-400 hover:text-red-300 p-2" title="删除">
+                            ✕
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-2">📭</p>
+            <p>还没有手动添加的推文</p>
+            <p class="text-sm mt-2">由于 Nitter 服务已基本失效，请在上方手动添加你想要摘要的推文</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 使用说明 -->
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-lg font-bold mb-4">💡 使用说明</h2>
+        <div class="text-gray-400 text-sm space-y-2">
+            <p>由于 Twitter/X 的 API 限制和 Nitter 服务的关闭，目前最可靠的方式是手动输入推文：</p>
+            <ol class="list-decimal list-inside space-y-1 ml-2">
+                <li>在 Twitter/X 上浏览你想要摘要的推文</li>
+                <li>复制推文内容和用户名到本页面</li>
+                <li>也可以复制推文链接（可选）</li>
+                <li>添加后，前往仪表盘生成 AI 摘要</li>
+            </ol>
+            <p class="mt-4 text-yellow-500">
+                💡 提示：你也可以使用浏览器插件或脚本来自动提取推文内容，然后批量导入。
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

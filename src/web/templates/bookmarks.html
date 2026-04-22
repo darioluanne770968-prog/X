@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}书签 - X Daily Digest{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">🔖 我的书签</h1>
+        <div class="text-gray-400">共 {{ bookmarks|length }} 条收藏</div>
+    </div>
+
+    <!-- 标签筛选 -->
+    {% if tags %}
+    <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div class="flex flex-wrap gap-2">
+            <a href="/bookmarks" class="px-3 py-1 rounded-full text-sm {% if not current_tag %}bg-x-blue text-white{% else %}bg-gray-700 text-gray-300 hover:bg-gray-600{% endif %}">
+                全部
+            </a>
+            {% for tag in tags %}
+            <a href="/bookmarks?tag={{ tag }}" class="px-3 py-1 rounded-full text-sm {% if current_tag == tag %}bg-x-blue text-white{% else %}bg-gray-700 text-gray-300 hover:bg-gray-600{% endif %}">
+                {{ tag }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 书签列表 -->
+    {% if bookmarks %}
+    <div class="space-y-4">
+        {% for bookmark in bookmarks %}
+        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="font-bold text-white">{{ bookmark.author_name }}</span>
+                        <span class="text-gray-500">@{{ bookmark.author_username }}</span>
+                    </div>
+                    <p class="text-gray-300 mb-3">{{ bookmark.tweet_text }}</p>
+
+                    <!-- 书签备注 -->
+                    {% if bookmark.note %}
+                    <div class="bg-gray-900 rounded p-2 mb-3 text-sm text-gray-400">
+                        📝 {{ bookmark.note }}
+                    </div>
+                    {% endif %}
+
+                    <!-- 标签 -->
+                    {% if bookmark.tags %}
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        {% for tag in bookmark.tags|from_json %}
+                        <span class="px-2 py-0.5 bg-gray-700 rounded-full text-xs text-gray-300">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span>❤️ {{ bookmark.like_count }}</span>
+                        <span>🔁 {{ bookmark.retweet_count }}</span>
+                        <a href="{{ bookmark.url }}" target="_blank" class="text-x-blue hover:underline">
+                            查看原文 →
+                        </a>
+                    </div>
+                </div>
+
+                <form action="/api/bookmarks/remove/{{ bookmark.tweet_id }}" method="POST">
+                    <button type="submit" class="text-gray-500 hover:text-red-400 p-2" title="取消收藏">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
+        <div class="text-5xl mb-4">🔖</div>
+        <h3 class="text-xl font-medium text-gray-300 mb-2">还没有书签</h3>
+        <p class="text-gray-500">在推文列表中点击书签图标来收藏推文</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

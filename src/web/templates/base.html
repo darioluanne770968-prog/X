@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#15202B">
+    <meta name="description" content="每日 X/Twitter 摘要 - 告别无限刷推，每天只看精华">
+
+    <!-- PWA 支持 -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="X Digest">
+
     <title>{% block title %}X Daily Digest{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,18 +35,52 @@
         .markdown-content p { margin: 0.5rem 0; }
         .markdown-content ul { list-style: disc; margin-left: 1.5rem; }
         .markdown-content a { color: #1DA1F2; text-decoration: underline; }
+
+        /* PWA 安装提示 */
+        .pwa-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .nav-links.show { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #15202B; padding: 1rem; border-bottom: 1px solid #374151; }
+            .mobile-menu-btn { display: block !important; }
+        }
+        .mobile-menu-btn { display: none; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
     <!-- 导航栏 -->
-    <nav class="bg-x-dark border-b border-gray-700">
+    <nav class="bg-x-dark border-b border-gray-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-8">
-                    <a href="/" class="text-xl font-bold text-x-blue">📰 X Daily Digest</a>
-                    <div class="flex space-x-2">
+                    <a href="/" class="text-xl font-bold text-x-blue flex items-center">
+                        <span class="text-2xl mr-2">📰</span>
+                        <span class="hidden sm:inline">X Daily Digest</span>
+                    </a>
+
+                    <!-- 移动端菜单按钮 -->
+                    <button class="mobile-menu-btn text-gray-300 hover:text-white p-2" onclick="toggleNav()">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+
+                    <div class="nav-links flex space-x-1" id="navLinks">
                         <a href="/" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'dashboard' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
                             🏠 仪表盘
+                        </a>
+                        <a href="/stats" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'stats' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            📈 统计
+                        </a>
+                        <a href="/bookmarks" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'bookmarks' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            🔖 书签
                         </a>
                         <a href="/chat" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'chat' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
                             🤖 AI助手
@@ -44,22 +88,29 @@
                         <a href="/sentiment" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'sentiment' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
                             📊 情绪
                         </a>
-                        <a href="/graph" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'graph' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            🕸️ 图谱
-                        </a>
-                        <a href="/alerts" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'alerts' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            🔔 提醒
-                        </a>
                         <a href="/following" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'following' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
                             👥 关注
                         </a>
-                        <a href="/filter" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'filter' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            🔇 过滤
+                        <a href="/manual-input" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'manual-input' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            ✏️ 输入
                         </a>
-                        <a href="/integrations" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'integrations' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
-                            🔗 集成
+                        <a href="/schedules" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'schedules' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            ⏰ 定时
+                        </a>
+                        <a href="/settings" class="px-2 py-2 rounded-md text-sm font-medium {% if page == 'settings' %}bg-gray-700 text-white{% else %}text-gray-300 hover:bg-gray-700{% endif %}">
+                            ⚙️ 设置
                         </a>
                     </div>
+                </div>
+
+                <!-- 用户菜单 -->
+                <div class="flex items-center space-x-4">
+                    {% if user %}
+                    <span class="text-gray-400 text-sm hidden sm:inline">{{ user.username }}</span>
+                    <a href="/logout" class="text-gray-400 hover:text-white text-sm">登出</a>
+                    {% else %}
+                    <a href="/login" class="text-x-blue hover:text-blue-400 text-sm font-medium">登录</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -79,7 +130,7 @@
     {% endif %}
 
     <!-- 主内容 -->
-    <main class="max-w-7xl mx-auto px-4 py-6">
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
         {% block content %}{% endblock %}
     </main>
 
@@ -89,6 +140,66 @@
             X Daily Digest - 告别无限刷推，每天只看精华
         </div>
     </footer>
+
+    <!-- PWA 安装提示 -->
+    <div class="pwa-prompt hidden" id="pwaPrompt">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-4 flex items-center space-x-4 border border-gray-700">
+            <span class="text-2xl">📱</span>
+            <div>
+                <div class="font-medium">安装到主屏幕</div>
+                <div class="text-sm text-gray-400">随时查看推文摘要</div>
+            </div>
+            <button onclick="installPWA()" class="bg-x-blue text-white px-4 py-2 rounded-lg font-medium">
+                安装
+            </button>
+            <button onclick="dismissPWA()" class="text-gray-400 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 移动端导航切换
+        function toggleNav() {
+            document.getElementById('navLinks').classList.toggle('show');
+        }
+
+        // PWA 安装
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // 显示安装提示（如果用户没有拒绝过）
+            if (!localStorage.getItem('pwa-dismissed')) {
+                document.getElementById('pwaPrompt').classList.remove('hidden');
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('PWA installed');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('pwaPrompt').classList.add('hidden');
+                });
+            }
+        }
+
+        function dismissPWA() {
+            localStorage.setItem('pwa-dismissed', 'true');
+            document.getElementById('pwaPrompt').classList.add('hidden');
+        }
+
+        // 注册 Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed'));
+        }
+    </script>
 
     {% block scripts %}{% endblock %}
 </body>
